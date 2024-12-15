@@ -43,7 +43,7 @@ This project is not intended for ongoing development or support. It will remain 
    cd physics-engine-java
    ```
 
-3. Build and run the test files under src/test/java directory.
+3. Build and run the test files under `src/test/java` directory.
 
 ## License
 This project is released under the MIT License. See the `LICENSE` file for more details.
