@@ -1,16 +1,24 @@
 package com.github.ajavadev.render;
 
+// Java Standard Library Imports
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+// LWJGL Core and Utilities
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 
-import java.nio.IntBuffer;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+// Custom Classes
+import com.github.ajavadev.util.Vector2;
+import com.github.ajavadev.entities.Shape;
 
+// LWJGL Static Imports
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -25,30 +33,30 @@ public class RenderEngine implements AutoCloseable {
     private static final Logger LOGGER = Logger.getLogger(RenderEngine.class.getName());
 
     // Window configuration parameters
-    private final int windowWidth;
-    private final int windowHeight;
+    private final Vector2 windowSize;
     private final String windowTitle;
 
     // Window handle
     private long window;
 
+    // ArrayList for shape objects
+    private final ArrayList<Shape> objectsInScene = new ArrayList<Shape>();
+
     /**
      * Default constructor with preset window dimensions and title.
      */
     public RenderEngine() {
-        this(300, 300, "LWJGL Render Engine");
+        this(new Vector2(800, 600), "LWJGL Render Engine");
     }
 
     /**
      * Parameterized constructor for custom window configuration.
      *
-     * @param width  The width of the window
-     * @param height The height of the window
-     * @param title  The title of the window
+     * @param windowSize The size of the window as a Vector2 object
+     * @param title      The title of the window
      */
-    public RenderEngine(int width, int height, String title) {
-        this.windowWidth = width;
-        this.windowHeight = height;
+    public RenderEngine(Vector2 windowSize, String title) {
+        this.windowSize = Objects.requireNonNull(windowSize, "Window size cannot be null");
         this.windowTitle = Objects.requireNonNull(title, "Window title cannot be null");
     }
 
@@ -58,7 +66,6 @@ public class RenderEngine implements AutoCloseable {
      */
     public void run() {
         LOGGER.info(() -> "Initializing LWJGL Version " + Version.getVersion());
-
         try {
             initializeGLFW();
             createWindow();
@@ -98,7 +105,7 @@ public class RenderEngine implements AutoCloseable {
      * @throws RuntimeException if window creation fails
      */
     private void createWindow() {
-        window = glfwCreateWindow(windowWidth, windowHeight, windowTitle, NULL, NULL);
+        window = glfwCreateWindow((int) windowSize.getX(), (int) windowSize.getY(), windowTitle, NULL, NULL);
 
         if (window == NULL) {
             throw new RuntimeException("Failed to create GLFW window. Check graphics driver and system capabilities.");
@@ -151,6 +158,14 @@ public class RenderEngine implements AutoCloseable {
     }
 
     /**
+     * Adds a new object to the scene.
+     */
+    public void addObject(Shape objectToAdd) {
+        objectsInScene.add(objectToAdd);
+    }
+
+
+    /**
      * Starts the main rendering loop.
      */
     private void startRenderLoop() {
@@ -163,6 +178,7 @@ public class RenderEngine implements AutoCloseable {
         // Rendering loop
         while (!glfwWindowShouldClose(window)) {
             renderFrame();
+
         }
     }
 
